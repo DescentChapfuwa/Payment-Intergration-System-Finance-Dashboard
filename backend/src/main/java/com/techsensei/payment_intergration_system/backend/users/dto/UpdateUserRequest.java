@@ -1,12 +1,10 @@
 package com.techsensei.payment_intergration_system.backend.users.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import jakarta.validation.constraints.*;
-
-
 @Data
-public class CreateUserRequest {
+public class UpdateUserRequest {
 
     @NotBlank(message = "Full name is required")
     private String fullName;
@@ -14,7 +12,4 @@ public class CreateUserRequest {
     @Email(message = "Invalid email")
     @NotBlank(message = "Email is required")
     private String email;
-
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    private String password;
 }

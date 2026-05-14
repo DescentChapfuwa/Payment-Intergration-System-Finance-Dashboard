@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = repository.findByEmail(request.getEmail()).orElseThrow();
+        User user = repository.findByEmail(request.getEmail());
 
         boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
 

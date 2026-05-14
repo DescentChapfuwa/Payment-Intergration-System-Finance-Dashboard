@@ -7,6 +7,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -50,9 +52,9 @@ public class JwtService {
         return claimsTFunction.apply(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());
     }
 
-    public Boolean isTokenValid(String token,String userName){
+    public Boolean isTokenValid(String token, UserDetails userDetails){
         String extractedUsername = extractUsername(token);
-        return extractedUsername.equals(userName);
+        return extractedUsername.equals(userDetails.getUsername());
     }
 
 }
