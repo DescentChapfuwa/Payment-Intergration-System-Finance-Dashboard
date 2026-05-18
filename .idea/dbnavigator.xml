@@ -6,7 +6,7 @@
   </component>
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DatabaseAssistantManager">
@@ -37,9 +37,7 @@
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="4b406561-92d8-452d-94f0-34ec46f54974" object-ref="schemas/payment_inter_sys/tables/users" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabasePrerequisiteManager">
     <prerequisites />
@@ -48,7 +46,7 @@
     <connection id="4b406561-92d8-452d-94f0-34ec46f54974" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-actions connection-id="4b406561-92d8-452d-94f0-34ec46f54974" dataset="payment_inter_sys.users" active-filter-id="980fd6ae-19f7-45af-a173-466d10ced169">
+    <filter-actions connection-id="4b406561-92d8-452d-94f0-34ec46f54974" dataset="payment_inter_sys.users" active-filter-id="EMPTY_FILTER">
       <filter id="980fd6ae-19f7-45af-a173-466d10ced169" name="Filter" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="id" operator="=" value="" active="true" />
       </filter>

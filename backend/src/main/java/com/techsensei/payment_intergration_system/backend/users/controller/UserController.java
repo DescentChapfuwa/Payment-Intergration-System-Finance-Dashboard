@@ -7,6 +7,7 @@ import com.techsensei.payment_intergration_system.backend.users.service.UserServ
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,15 +19,15 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(
-            @Valid @RequestBody CreateUserRequest request
-    ) {
+    public ResponseEntity<UserResponse>
+    createUser( @Valid @RequestBody CreateUserRequest request) {
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUser(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(
             @PathVariable Long id
@@ -37,6 +38,7 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
 
@@ -45,6 +47,7 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
@@ -56,6 +59,7 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id

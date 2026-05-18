@@ -2,9 +2,12 @@ package com.techsensei.payment_intergration_system.backend.common.handler;
 
 import com.techsensei.payment_intergration_system.backend.common.dto.ErrorResponse;
 import com.techsensei.payment_intergration_system.backend.common.exception.BadRequestException;
+import com.techsensei.payment_intergration_system.backend.common.exception.ForbiddenException;
 import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
 import com.techsensei.payment_intergration_system.backend.common.exception.UnauthorizedException;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,6 +89,36 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(
+            ForbiddenException ex
+    ) {
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("Access denied")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(
+            ForbiddenException ex
+    ) {
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message("Access denied")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(
             Exception ex
@@ -101,4 +134,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR
         ).body(error);
     }
+
+
+
+
 }

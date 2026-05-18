@@ -11,6 +11,8 @@ import com.techsensei.payment_intergration_system.backend.users.mapper.UserMappe
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
 import com.techsensei.payment_intergration_system.backend.users.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
+
+        log.info("Creating user with email:",request.getEmail());
 
         if (repository.findByEmail(request.getEmail()) != null) {
             throw new BadRequestException(
@@ -41,10 +47,12 @@ public class UserServiceImpl implements UserService {
                                 request.getPassword()
                         )
                 )
-                .role(Role.USER)
+                .role(Role.ADMIN)
                 .build();
 
-        repository.save(user);
+        User savedUser = repository.save(user);
+
+        log.info("User created successfully",savedUser.getId());
 
         return UserMapper.mapToResponse(user);
     }
@@ -52,17 +60,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(Long id) {
 
+        log.info("Searching for user with ID:",id);
+
         User user = repository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found"
                         ));
+        log.info("User retrieved successfully:{}",id);
 
         return UserMapper.mapToResponse(user);
     }
 
     @Override
     public List<UserResponse> getAllUsers() {
+
+        log.info("Retrieving All Users from the database");
 
         return repository.findAll()
                 .stream()
@@ -76,8 +89,11 @@ public class UserServiceImpl implements UserService {
             UpdateUserRequest request
     ) {
 
+        log.info("Updating user :{}",id);
+
         User user = repository.findById(id)
                 .orElseThrow(() ->
+
                         new ResourceNotFoundException(
                                 "User not found"
                         ));
@@ -85,7 +101,9 @@ public class UserServiceImpl implements UserService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
 
-        repository.save(user);
+       User userUpdated =  repository.save(user);
+
+       log.info("User updated successfully",id);
 
         return UserMapper.mapToResponse(user);
     }
@@ -93,11 +111,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
 
+        log.info("Deleting user :{}",id);
+
         User user = repository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found"
                         ));
+
+        log.info("User deleted successfully :{}",id);
 
         repository.delete(user);
     }
