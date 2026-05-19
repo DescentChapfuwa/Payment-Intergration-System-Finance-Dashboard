@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.users.service.serviceImpl;
 
+import com.techsensei.payment_intergration_system.backend.payments.service.WalletService;
 import com.techsensei.payment_intergration_system.backend.security.jwt.JwtService;
 import com.techsensei.payment_intergration_system.backend.users.dto.auth.AuthResponse;
 import com.techsensei.payment_intergration_system.backend.users.dto.auth.LoginRequest;
@@ -19,6 +20,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final WalletService walletService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -30,7 +32,11 @@ public class AuthServiceImpl implements AuthService {
                 .role(Role.USER)
                 .build();
 
-        repository.save(user);
+        User savedUser = repository.save(user);
+
+        walletService.createWallet(
+                savedUser
+        );
 
         String jwtToken = jwtService.generateToken(user);
         return new AuthResponse(jwtToken);

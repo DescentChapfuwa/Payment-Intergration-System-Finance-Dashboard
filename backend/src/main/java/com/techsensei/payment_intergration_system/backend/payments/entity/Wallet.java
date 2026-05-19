@@ -20,7 +20,7 @@ public class Wallet {
     private Long id;
 
     @Column(nullable = false,precision = 19,scale = 2)
-    private BigDecimal amount;
+    private BigDecimal balance;
 
     @Column(nullable = false)
     private String currency;
