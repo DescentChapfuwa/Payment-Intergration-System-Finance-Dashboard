@@ -1,10 +1,7 @@
 package com.techsensei.payment_intergration_system.backend.common.handler;
 
 import com.techsensei.payment_intergration_system.backend.common.dto.ErrorResponse;
-import com.techsensei.payment_intergration_system.backend.common.exception.BadRequestException;
-import com.techsensei.payment_intergration_system.backend.common.exception.ForbiddenException;
-import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
-import com.techsensei.payment_intergration_system.backend.common.exception.UnauthorizedException;
+import com.techsensei.payment_intergration_system.backend.common.exception.*;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -116,6 +113,45 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
+    @ExceptionHandler(
+            InsufficientBalanceException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleInsufficientBalance(
+            InsufficientBalanceException ex
+    ){
+
+        ErrorResponse error =
+                ErrorResponse.builder()
+                        .status(400)
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build();
+
+        return ResponseEntity
+                .badRequest()
+                .body(error);
+    }
+
+    @ExceptionHandler(
+            InvalidPaymentException.class)
+    public ResponseEntity<ErrorResponse>
+    handleInvalidPayment(
+            InvalidPaymentException ex
+    ){
+
+        ErrorResponse error =
+                ErrorResponse.builder()
+                        .status(400)
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build();
+
+        return ResponseEntity
+                .badRequest()
                 .body(error);
     }
 
