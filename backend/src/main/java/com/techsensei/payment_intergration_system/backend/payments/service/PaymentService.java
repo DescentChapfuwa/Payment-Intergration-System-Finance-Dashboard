@@ -5,5 +5,5 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentRe
 
 public interface PaymentService {
 
-    PaymentResponse sendMoney(Long senderId, PaymentRequest request);
+    PaymentResponse sendMoney(String senderEmail, PaymentRequest request);
 }

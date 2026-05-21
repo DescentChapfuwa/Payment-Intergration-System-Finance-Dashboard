@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.users.service.serviceImpl;
 
+import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
 import com.techsensei.payment_intergration_system.backend.payments.service.WalletService;
 import com.techsensei.payment_intergration_system.backend.security.jwt.JwtService;
 import com.techsensei.payment_intergration_system.backend.users.dto.auth.AuthResponse;
@@ -44,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = repository.findByEmail(request.getEmail());
+        User user = repository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
 

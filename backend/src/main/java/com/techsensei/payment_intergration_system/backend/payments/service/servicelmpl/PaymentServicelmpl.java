@@ -39,16 +39,16 @@ public class PaymentServicelmpl  implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse sendMoney(Long senderId, PaymentRequest request) {
+    public PaymentResponse sendMoney(String senderEmail, PaymentRequest request) {
 
         log.info(
                 "Payment initiated senderId={}, receiverId={}, amount={}",
-                senderId,
+                senderEmail,
                 request.getReceiverId(),
                 request.getAmount()
         );
 
-        User sender = userRepository.findById(senderId)
+        User sender = userRepository.findByEmail(senderEmail)
                         .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
 
         User receiver = userRepository.findById(request.getReceiverId())
@@ -61,7 +61,7 @@ public class PaymentServicelmpl  implements PaymentService {
         }
 
         Wallet senderWallet = walletRepository
-                        .findByUserIdForUpdate(senderId)
+                        .findByUserIdForUpdate(sender.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Sender wallet not found"));
 
         Wallet receiverWallet = walletRepository
