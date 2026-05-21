@@ -61,11 +61,11 @@ public class PaymentServicelmpl  implements PaymentService {
         }
 
         Wallet senderWallet = walletRepository
-                        .findByUserId(senderId)
+                        .findByUserIdForUpdate(senderId)
                         .orElseThrow(() -> new ResourceNotFoundException("Sender wallet not found"));
 
         Wallet receiverWallet = walletRepository
-                        .findByUserId(receiver.getId())
+                        .findByUserIdForUpdate(receiver.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Receiver wallet not found"));
 
         if(senderWallet.getBalance().compareTo(request.getAmount()) < 0){
