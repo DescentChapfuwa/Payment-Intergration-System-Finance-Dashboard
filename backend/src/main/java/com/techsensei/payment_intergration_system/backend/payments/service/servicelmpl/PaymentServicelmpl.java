@@ -7,6 +7,7 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentRe
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentResponse;
 import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
+import com.techsensei.payment_intergration_system.backend.payments.events.PaymentCompletedEvent;
 import com.techsensei.payment_intergration_system.backend.payments.repository.PaymentRepository;
 import com.techsensei.payment_intergration_system.backend.payments.repository.TransactionRepository;
 import com.techsensei.payment_intergration_system.backend.payments.repository.WalletRepository;
@@ -18,6 +19,7 @@ import com.techsensei.payment_intergration_system.backend.payments.entity.Transa
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,8 @@ public class PaymentServicelmpl  implements PaymentService {
     private final PaymentRepository paymentRepository;
 
     private final TransactionRepository transactionRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -112,6 +116,15 @@ public class PaymentServicelmpl  implements PaymentService {
         payment.setStatus(PaymentStatus.SUCCESS);
 
         paymentRepository.save(payment);
+
+        eventPublisher.publishEvent(
+                new PaymentCompletedEvent(
+                        payment.getId(),
+                        sender.getId(),
+                        receiver.getId(),
+                        request.getAmount()
+                )
+        );
 
         log.info("Payment completed paymentId={}", payment.getId());
 
