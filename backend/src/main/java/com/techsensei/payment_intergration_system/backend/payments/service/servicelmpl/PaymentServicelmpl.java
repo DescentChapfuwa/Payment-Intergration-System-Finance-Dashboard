@@ -3,6 +3,8 @@ package com.techsensei.payment_intergration_system.backend.payments.service.serv
 import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
 import com.techsensei.payment_intergration_system.backend.common.exception.InvalidPaymentException;
 import com.techsensei.payment_intergration_system.backend.common.exception.InsufficientBalanceException;
+import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResponse;
+import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentHistoryResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentRequest;
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentResponse;
 import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
@@ -20,10 +22,15 @@ import com.techsensei.payment_intergration_system.backend.users.repository.UserR
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -55,8 +62,24 @@ public class PaymentServicelmpl  implements PaymentService {
     @Transactional
     public PaymentResponse sendMoney(String senderEmail, PaymentRequest request) {
 
-        log.info(
-                "Payment initiated senderId={}, receiverId={}, amount={}",
+
+        Payment existingPayment = paymentRepository.findByIdempotencyKey(request.getIdempotencyKey()).orElse(null);
+
+        if(existingPayment != null){
+
+            log.info("Duplicate request detected");
+
+            return PaymentResponse
+                    .builder()
+                    .paymentId(existingPayment.getId())
+                    .reference(existingPayment.getReference())
+                    .amount(existingPayment.getAmount())
+                    .status(existingPayment.getStatus())
+                    .message("Existing payment returned")
+                    .build();
+        }
+
+        log.info("Payment initiated senderId={}, receiverId={}, amount={}",
                 senderEmail,
                 request.getReceiverId(),
                 request.getAmount()
@@ -89,6 +112,7 @@ public class PaymentServicelmpl  implements PaymentService {
 
         Payment payment = Payment.builder()
                 .reference(generateReference())
+                .idempotencyKey(request.getIdempotencyKey())
                 .sender(sender)
                 .receiver(receiver)
                 .amount(request.getAmount())
@@ -145,6 +169,40 @@ public class PaymentServicelmpl  implements PaymentService {
                 .amount(payment.getAmount())
                 .status(payment.getStatus())
                 .message("Transfer successful")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PagedResponse<PaymentHistoryResponse> getPaymentHistory(Long userId, int page, int size){
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Payment> paymentPage = paymentRepository.findBySenderIdOrReceiverId(userId, userId, pageable);
+
+        List<PaymentHistoryResponse> content = paymentPage
+                        .getContent()
+                        .stream()
+                        .map(payment -> PaymentHistoryResponse
+                                        .builder()
+                                        .reference(payment.getReference())
+                                        .senderEmail(payment.getSender().getEmail())
+                                        .receiverEmail(payment.getReceiver().getEmail())
+                                        .amount(payment.getAmount())
+                                        .status(payment.getStatus())
+                                        .createdAt(payment.getCreatedAt())
+                                        .build()
+                        )
+                        .toList();
+
+        return PagedResponse
+                .<PaymentHistoryResponse>builder()
+                .content(content)
+                .page(paymentPage.getNumber())
+                .size(paymentPage.getSize())
+                .totalElements(paymentPage.getTotalElements())
+                .totalPages(paymentPage.getTotalPages())
+                .last(paymentPage.isLast())
                 .build();
     }
 }

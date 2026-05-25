@@ -27,6 +27,9 @@ public class Payment {
     @Column(unique = true, nullable = false)
     private String reference;
 
+    @Column(unique = true)
+    private String idempotencyKey;
+
     @ManyToOne
     @JoinColumn(name = "receiver_id",nullable = false)
     private User receiver;
