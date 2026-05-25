@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.service.servicelmpl;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.TransactionResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletTopUpRequest;
 import com.techsensei.payment_intergration_system.backend.payments.entity.Transaction;
@@ -7,6 +8,7 @@ import com.techsensei.payment_intergration_system.backend.payments.entity.Transa
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
 import com.techsensei.payment_intergration_system.backend.payments.repository.TransactionRepository;
 import com.techsensei.payment_intergration_system.backend.payments.repository.WalletRepository;
+import com.techsensei.payment_intergration_system.backend.payments.service.WalletCacheService;
 import com.techsensei.payment_intergration_system.backend.payments.service.WalletService;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
-
+    private final WalletCacheService walletCacheService;
     @Override
     public Wallet createWallet(User user) {
 
@@ -52,6 +55,59 @@ public class WalletServiceImpl implements WalletService {
         );
 
         return savedWallet;
+    }
+
+    @Override
+    public WalletResponse getWalletBalance(Long userId) {
+        log.info("Fetching wallet balance for userId={}", userId);
+
+        WalletResponse cachedWallet = walletCacheService.getWallet(userId);
+
+        if(cachedWallet != null){
+
+            log.info("Wallet loaded from cache");
+
+            return cachedWallet;
+        }
+
+        log.info("Cache miss");
+
+        Wallet wallet = walletRepository
+                        .findByUserIdForUpdate(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+
+        WalletResponse response = WalletResponse.builder()
+                        .walletId(wallet.getId())
+                        .balance(wallet.getBalance())
+                        .currency(wallet.getCurrency())
+                        .build();
+
+        walletCacheService.cacheWallet(userId, response);
+
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public List<TransactionResponse> getTransactionHistory(Long userId){
+
+        Wallet wallet = walletRepository
+                .findByUserIdForUpdate(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+
+        List<Transaction> transactions = transactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
+
+        return transactions
+                .stream()
+                .map(transaction -> TransactionResponse
+                                .builder()
+                                .transactionId(transaction.getId())
+                                .amount(transaction.getAmount())
+                                .type(transaction.getType())
+                                .createdAt(transaction.getCreatedAt())
+                                .build()
+                )
+                .toList();
     }
 
     @Override

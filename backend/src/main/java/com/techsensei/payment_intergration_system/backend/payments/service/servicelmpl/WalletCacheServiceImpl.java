@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.service.servicelmpl;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.service.WalletCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,18 +17,26 @@ public class WalletCacheServiceImpl implements WalletCacheService {
     private final RedisTemplate<String,Object> redisTemplate;
 
     private static final String PREFIX = "wallet_balance:";
+
+
     @Override
-    public void cacheBalance(Long userId, BigDecimal balance) {
-        redisTemplate.opsForValue().set(PREFIX + userId, balance,Duration.ofMinutes(30));
+    public void cacheWallet(Long userId, WalletResponse walletResponse) {
+
+        redisTemplate
+                .opsForValue()
+                .set(PREFIX + userId, walletResponse,Duration.ofMinutes(30));
     }
 
     @Override
-    public BigDecimal getBalance(Long userId) {
+    public WalletResponse getWallet(Long userId) {
+        Object value = redisTemplate
+                        .opsForValue()
+                        .get(PREFIX + userId);
 
-        Object value = redisTemplate.opsForValue().get(PREFIX + userId);
-
-        if(value == null){return null;}
-
-        return new BigDecimal(value.toString());
+        if(value == null){
+            return null;
+        }
+        return (WalletResponse)value;
     }
+
 }

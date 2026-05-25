@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.listeners;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
 import com.techsensei.payment_intergration_system.backend.payments.events.PaymentCompletedEvent;
 import com.techsensei.payment_intergration_system.backend.payments.repository.WalletRepository;
@@ -20,18 +21,30 @@ public class WalletCacheListener {
 
     @EventListener
     public void updateBalanceCache(PaymentCompletedEvent event){
+        try{
+            updateWalletCache(event.getSenderId());
 
-        Wallet senderWallet = walletRepository.findByUserIdForUpdate(event.getSenderId()).orElse(null);
+            updateWalletCache(event.getReceiverId());
 
-        Wallet receiverWallet = walletRepository.findByUserIdForUpdate(event.getReceiverId()).orElse(null);
+            log.info("Wallet cache updated");
 
-        if(senderWallet != null){walletCacheService.cacheBalance(event.getSenderId(), senderWallet.getBalance());}
-
-        if(receiverWallet != null){
-
-            walletCacheService.cacheBalance(event.getReceiverId(), receiverWallet.getBalance());
+        }catch(Exception ex){
+            log.error("Cache update failed: {}", ex.getMessage());
         }
+    }
 
-        log.info("Wallet cache updated for sender={} receiver={}", event.getSenderId(), event.getReceiverId());
+    private void updateWalletCache(Long userId){
+
+        Wallet wallet = walletRepository.findByUserIdForUpdate(userId).orElse(null);
+
+        if(wallet == null){return;}
+
+        WalletResponse response = WalletResponse.builder()
+                        .walletId(wallet.getId())
+                        .balance(wallet.getBalance())
+                        .currency(wallet.getCurrency())
+                        .build();
+
+        walletCacheService.cacheWallet(userId, response);
     }
 }
