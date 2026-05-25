@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Service
@@ -40,6 +41,15 @@ public class PaymentServicelmpl  implements PaymentService {
     private final TransactionRepository transactionRepository;
 
     private final ApplicationEventPublisher eventPublisher;
+
+    private String generateReference() {
+
+        return "PAY-" + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0,16)
+                .toUpperCase();
+    }
 
     @Override
     @Transactional
@@ -78,12 +88,13 @@ public class PaymentServicelmpl  implements PaymentService {
         }
 
         Payment payment = Payment.builder()
-                        .sender(sender)
-                        .receiver(receiver)
-                        .amount(request.getAmount())
-                        .status(PaymentStatus.PENDING)
-                        .createdAt(LocalDateTime.now())
-                        .build();
+                .reference(generateReference())
+                .sender(sender)
+                .receiver(receiver)
+                .amount(request.getAmount())
+                .status(PaymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         paymentRepository.save(payment);
 
@@ -129,6 +140,7 @@ public class PaymentServicelmpl  implements PaymentService {
         log.info("Payment completed paymentId={}", payment.getId());
 
         return PaymentResponse.builder()
+                .reference(payment.getReference())
                 .paymentId(payment.getId())
                 .amount(payment.getAmount())
                 .status(payment.getStatus())

@@ -19,6 +19,8 @@ public class PaymentResponse {
 
     private PaymentStatus status;
 
+    private String reference;
+
     private String message;
 
 }
