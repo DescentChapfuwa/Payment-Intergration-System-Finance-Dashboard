@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.service.servicelmpl;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.TransactionResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletTopUpRequest;
@@ -14,6 +15,10 @@ import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,25 +94,36 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public List<TransactionResponse> getTransactionHistory(Long userId){
+    public PagedResponse<TransactionResponse> getTransactionHistory(Long userId, int page, int size){
 
-        Wallet wallet = walletRepository
-                .findByUserIdForUpdate(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+        Wallet wallet = walletRepository.findByUserIdForUpdate(userId).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
 
-        List<Transaction> transactions = transactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return transactions
-                .stream()
-                .map(transaction -> TransactionResponse
+        Page<Transaction> transactionPage = transactionRepository.findByWalletId(wallet.getId(), pageable);
+
+        List<TransactionResponse> content = transactionPage
+                        .getContent()
+                        .stream()
+                        .map(transaction -> TransactionResponse
                                 .builder()
                                 .transactionId(transaction.getId())
                                 .amount(transaction.getAmount())
                                 .type(transaction.getType())
                                 .createdAt(transaction.getCreatedAt())
                                 .build()
-                )
-                .toList();
+                        )
+                        .toList();
+
+        return PagedResponse
+                .<TransactionResponse>builder()
+                .content(content)
+                .page(transactionPage.getNumber())
+                .size(transactionPage.getSize())
+                .totalElements(transactionPage.getTotalElements())
+                .totalPages(transactionPage.getTotalPages())
+                .last(transactionPage.isLast())
+                .build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.service;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletTopUpRequest;
 import com.techsensei.payment_intergration_system.backend.payments.dto.TransactionResponse;
@@ -14,7 +15,7 @@ public interface WalletService {
 
     WalletResponse getWalletBalance(Long userId);
 
-    List<TransactionResponse> getTransactionHistory(Long userId);
+    PagedResponse<TransactionResponse> getTransactionHistory(Long userId, int page, int size);
 
     WalletResponse topUpWallet(Long userId, WalletTopUpRequest request);
 }

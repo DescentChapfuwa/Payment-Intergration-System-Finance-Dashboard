@@ -1,6 +1,7 @@
 package com.techsensei.payment_intergration_system.backend.payments.controller;
 
 import com.techsensei.payment_intergration_system.backend.common.exception.ResourceNotFoundException;
+import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.TransactionResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WalletTopUpRequest;
@@ -31,33 +32,30 @@ public class WalletController {
         return ResponseEntity.ok(walletService.topUpWallet(userId, request));
     }
 
-    @PreAuthorize(
-            "hasAnyRole('USER','ADMIN')"
-    )
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/balance")
-    public ResponseEntity<WalletResponse> getBalance(Authentication authentication){
+    public ResponseEntity<WalletResponse> getBalance(Authentication authentication) {
 
         String email = authentication.getName();
 
         User user = userRepository
-                        .findByEmail(email)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException("User not found"));
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         return ResponseEntity.ok(walletService.getWalletBalance(user.getId()));
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/transactions")
-    public ResponseEntity<List<TransactionResponse>> getTransactions(Authentication authentication){
+    public ResponseEntity<PagedResponse<TransactionResponse>> getTransactions(Authentication authentication, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
         String email = authentication.getName();
 
         User user = userRepository
-                        .findByEmail(email)
-                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return ResponseEntity.ok(walletService.getTransactionHistory(user.getId()));
-
+        return ResponseEntity.ok(walletService.getTransactionHistory(user.getId(), page, size)
+        );
     }
 }
