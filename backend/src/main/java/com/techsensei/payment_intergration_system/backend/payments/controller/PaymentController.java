@@ -5,11 +5,15 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResp
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentHistoryResponse;
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentRequest;
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaymentResponse;
+import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 import com.techsensei.payment_intergration_system.backend.payments.service.PaymentService;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +31,8 @@ public class PaymentController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/send")
-    public ResponseEntity<PaymentResponse> sendMoney(@Valid @RequestBody PaymentRequest request, Authentication authentication) {
+    public ResponseEntity<PaymentResponse> sendMoney(@Valid @RequestBody PaymentRequest request,
+            Authentication authentication) {
 
         String email = authentication.getName();
 
@@ -38,12 +43,19 @@ public class PaymentController {
 
     @GetMapping("/history")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<PagedResponse<PaymentHistoryResponse>> getPaymentHistory(Authentication authentication, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+    public ResponseEntity<PagedResponse<PaymentHistoryResponse>> getPaymentHistory(Authentication authentication,
+            @RequestParam(required = false) PaymentStatus status,
+            @RequestParam(required = false) String reference,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
         String email = authentication.getName();
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return ResponseEntity.ok(paymentService.getPaymentHistory(user.getId(), page, size));
+        return ResponseEntity
+                .ok(paymentService.getPaymentHistory(user.getId(), status, reference, minAmount, page, size));
     }
 
 }
