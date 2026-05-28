@@ -2,7 +2,6 @@ package com.techsensei.payment_intergration_system.backend.payments.repository;
 
 
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
-import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;

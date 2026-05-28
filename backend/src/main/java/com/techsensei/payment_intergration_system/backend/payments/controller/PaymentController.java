@@ -31,8 +31,7 @@ public class PaymentController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/send")
-    public ResponseEntity<PaymentResponse> sendMoney(@Valid @RequestBody PaymentRequest request,
-            Authentication authentication) {
+    public ResponseEntity<PaymentResponse> sendMoney(@Valid @RequestBody PaymentRequest request,Authentication authentication) {
 
         String email = authentication.getName();
 
