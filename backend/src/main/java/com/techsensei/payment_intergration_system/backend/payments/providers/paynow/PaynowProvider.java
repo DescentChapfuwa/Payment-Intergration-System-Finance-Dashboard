@@ -29,7 +29,8 @@ public class PaynowProvider implements PaymentProvider {
 
         return ProviderPaymentResponse
                 .builder()
-                .success("SUCCESS".equals(response.getStatus()))
+                .status(response.getStatus())
+                .checkoutUrl("")
                 .providerReference(response.getReference())
                 .message(response.getMessage())
                 .build();

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.techsensei.payment_intergration_system.backend.payments.dto.PaynowApiResponse;
+import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class PaynowHttpClient {
 
         return PaynowApiResponse
                 .builder()
-                .status("SUCCESS")
+                .status(PaymentStatus.SUCCESS)
                 .reference("PAYNOW-123")
                 .message("External payment success")
                 .build();

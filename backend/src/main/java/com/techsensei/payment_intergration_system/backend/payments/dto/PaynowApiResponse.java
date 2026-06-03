@@ -1,5 +1,7 @@
 package com.techsensei.payment_intergration_system.backend.payments.dto;
 
+import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +15,7 @@ import lombok.Setter;
 @Builder
 public class PaynowApiResponse {
 
-    private String status;
+    private PaymentStatus status;
 
     private String reference;
 

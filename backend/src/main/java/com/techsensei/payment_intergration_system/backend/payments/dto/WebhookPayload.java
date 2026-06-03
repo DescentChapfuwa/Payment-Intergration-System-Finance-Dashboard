@@ -1,8 +1,5 @@
 package com.techsensei.payment_intergration_system.backend.payments.dto;
 
-import com.techsensei.payment_intergration_system.backend.payments.entity.Payment;
-import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,13 +11,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProviderPaymentResponse {
-
-    private PaymentStatus status;
+public class WebhookPayload {
 
     private String providerReference;
 
-    private String checkoutUrl;
+    private String status;
 
-    private String message;
+    private String paymentReference;
 }
