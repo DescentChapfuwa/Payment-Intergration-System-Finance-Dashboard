@@ -12,4 +12,5 @@ public interface FundingTransactionRepository extends JpaRepository<FundingTrans
     Optional<FundingTransaction> findByReference(UUID reference);
 
     Optional<FundingTransaction> findByProviderReference(String providerReference);
+
 }
