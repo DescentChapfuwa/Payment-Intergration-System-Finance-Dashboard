@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "paynow.integration-key",
+    "type": "java.lang.String",
+    "description": "A description for 'paynow.integration-key'"
+  },
+  {
+    "name": "paynow.integration-id",
+    "type": "java.lang.String",
+    "description": "A description for 'paynow.integration-id'"
+  },
+  {
+    "name": "paynow.result-url",
+    "type": "java.lang.String",
+    "description": "A description for 'paynow.result-url'"
+  },
+  {
+    "name": "paynow.return-url",
+    "type": "java.lang.String",
+    "description": "A description for 'paynow.return-url'"
+  },
+  {
+    "name": "paynow.merchant-email",
+    "type": "java.lang.String",
+    "description": "A description for 'paynow.merchant-email'"
+  }
+]}

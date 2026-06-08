@@ -1,18 +1,16 @@
 package com.techsensei.payment_intergration_system.backend.funding.service.serviceImpl;
 
-import java.time.LocalDateTime;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingRequest;
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingResponse;
 import com.techsensei.payment_intergration_system.backend.funding.entity.FundingTransaction;
 import com.techsensei.payment_intergration_system.backend.funding.enums.FundingStatus;
-import com.techsensei.payment_intergration_system.backend.funding.events.FundingCompletedEvent;
 import com.techsensei.payment_intergration_system.backend.funding.repository.FundingTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.funding.service.FundingService;
 import com.techsensei.payment_intergration_system.backend.payments.dto.ProviderPaymentResponse;
+import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 import com.techsensei.payment_intergration_system.backend.payments.providers.PaymentProvider;
 import com.techsensei.payment_intergration_system.backend.payments.providers.PaymentProviderFactory;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
@@ -23,27 +21,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class FundingServiceImpl implements FundingService {
 
     private final UserRepository userRepository;
-
-    private final FundingTransactionRepository fundingtransactionRepository;
-
+    private final FundingTransactionRepository fundingTransactionRepository;
     private final PaymentProviderFactory paymentProviderFactory;
-
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public FundingResponse initiateFunding(Long userId, FundingRequest request) {
 
-        log.info("Initiating funding for user: {} with amount: {} and provider: {}", userId, request.getAmount(),
+        log.info(
+                "Initiating funding for user: {} with amount: {} and provider: {}",
+                userId,
+                request.getAmount(),
                 request.getProvider());
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Create transaction in PENDING state
         FundingTransaction transaction = FundingTransaction.builder()
                 .user(user)
                 .amount(request.getAmount())
@@ -51,34 +49,42 @@ public class FundingServiceImpl implements FundingService {
                 .status(FundingStatus.PENDING)
                 .build();
 
-        transaction = fundingtransactionRepository.save(transaction);
+        transaction = fundingTransactionRepository.save(transaction);
 
+        // Select provider
         PaymentProvider provider = paymentProviderFactory.getProvider(request.getProvider());
 
-        ProviderPaymentResponse providerResponse = provider.processPayment(user.getEmail(), request.getAmount());
+        // Initiate external payment
+        ProviderPaymentResponse providerResponse = provider.processPayment(
+                transaction.getReference().toString(),
+                user.getEmail(),
+                request.getAmount());
 
+        if (providerResponse.getStatus() == PaymentStatus.FAILED) {
+
+            throw new RuntimeException(providerResponse.getMessage());
+        }
+
+        // Save provider information
         transaction.setProviderReference(providerResponse.getProviderReference());
 
-        transaction.setStatus(FundingStatus.SUCCESS);
+        // If you added pollUrl to FundingTransaction
+        if (providerResponse.getPollUrl() != null) {
+            transaction.setPollUrl(providerResponse.getPollUrl());
+        }
 
-        transaction.setCompletedAt(LocalDateTime.now());
+        fundingTransactionRepository.save(transaction);
 
-        fundingtransactionRepository.save(transaction);
-
-        applicationEventPublisher.publishEvent(
-
-            new FundingCompletedEvent( transaction.getUser().getId(), transaction.getReference(),transaction.getAmount()
-            )
-        );
+        log.info(
+                "Funding transaction {} initiated successfully. Waiting for webhook confirmation.",
+                transaction.getReference());
 
         return FundingResponse.builder()
                 .reference(transaction.getReference())
-                .status(transaction.getStatus())
+                .status(transaction.getStatus()) // PENDING
                 .providerReference(providerResponse.getProviderReference())
                 .checkoutUrl(providerResponse.getCheckoutUrl())
                 .message(providerResponse.getMessage())
                 .build();
-
     }
-
 }

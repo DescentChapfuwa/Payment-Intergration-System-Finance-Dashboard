@@ -20,39 +20,42 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
+        private final JwtAuthenticationFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/auth/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .exceptionHandling(exception -> exception.accessDeniedHandler((request,response,ex)->{
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(Customizer.withDefaults())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/auth/**")
+                                                .permitAll()
+                                                .requestMatchers("/webhooks/**")
+                                                .permitAll()
+                                                .requestMatchers("/payment/**")
+                                                .permitAll()
+                                                .anyRequest()
+                                                .authenticated())
+                                .exceptionHandling(
+                                                exception -> exception.accessDeniedHandler((request, response, ex) -> {
+                                                        response.setStatus(HttpStatus.FORBIDDEN.value());
+                                                        response.setContentType("application/json");
+                                                        response.setCharacterEncoding("UTF-8");
 
-                    String json = """
-                            {
-                            "status":403,
-                            "message":"Access Denied"
-                            }
-                            """;
+                                                        String json = """
+                                                                        {
+                                                                        "status":403,
+                                                                        "message":"Access Denied"
+                                                                        }
+                                                                        """;
 
-                    response.getWriter().write(json);
-                    response.getWriter().flush();
-        }))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                                                        response.getWriter().write(json);
+                                                        response.getWriter().flush();
+                                                }))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }
-
-
-

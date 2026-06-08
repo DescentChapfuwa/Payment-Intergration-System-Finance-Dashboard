@@ -46,6 +46,9 @@ public class FundingTransaction {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "poll_url")
+    private String pollUrl;
+
     @Column(nullable = false)
     private BigDecimal amount;
 

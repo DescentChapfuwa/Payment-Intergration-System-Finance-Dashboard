@@ -22,5 +22,7 @@ public class ProviderPaymentResponse {
 
     private String checkoutUrl;
 
+    private String pollUrl;
+
     private String message;
 }

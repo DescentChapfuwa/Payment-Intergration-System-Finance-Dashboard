@@ -6,7 +6,8 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.ProviderP
 
 public interface PaymentProvider {
 
-    ProviderPaymentResponse processPayment(String customerEmail,BigDecimal amount);
+    ProviderPaymentResponse processPayment(String reference, String customerEmail, BigDecimal amount);
 
     String getProviderName();
+
 }

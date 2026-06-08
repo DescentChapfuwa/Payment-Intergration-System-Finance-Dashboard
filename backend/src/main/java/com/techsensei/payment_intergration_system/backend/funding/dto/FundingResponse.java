@@ -25,5 +25,7 @@ public class FundingResponse {
 
     private String checkoutUrl;
 
+    private String pollUrl;
+
     private String message;
 }
