@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.controller;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.techsensei.payment_intergration_system.backend.payments.dto.PaynowWebhookPayload;
 import com.techsensei.payment_intergration_system.backend.payments.dto.WebhookPayload;
 import com.techsensei.payment_intergration_system.backend.payments.service.WebhookService;
 
@@ -24,12 +26,23 @@ public class WebhookController {
 
     private final WebhookService webhookService;
 
-    @PostMapping(value = "/paynow", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> paynowWebhook(
-            @RequestParam Map<String, String> payload) {
+    @PostMapping(
+        value = "/paynow",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+)
+public ResponseEntity<Void> paynowWebhook(@RequestParam Map<String,String> payload){
 
-        log.info("Paynow webhook payload: {}", payload);
+    PaynowWebhookPayload webhookPayload = PaynowWebhookPayload.builder()
+                    .reference(payload.get("reference"))
+                    .paynowReference(payload.get("paynowreference"))
+                    .amount(new BigDecimal(payload.get("amount")))
+                    .status(payload.get("status"))
+                    .pollUrl( payload.get("pollurl"))
+                    .hash(payload.get("hash"))
+                    .build();
 
-        return ResponseEntity.ok().build();
-    }
+    webhookService.processWebhook(webhookPayload);
+
+    return ResponseEntity.ok().build();
+}
 }
