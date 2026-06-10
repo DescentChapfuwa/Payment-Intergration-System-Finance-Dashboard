@@ -1,6 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.payments.entity;
 
-import com.techsensei.payment_intergration_system.backend.users.entity.User;
+
 import jakarta.persistence.*;
 import lombok.*;
 
