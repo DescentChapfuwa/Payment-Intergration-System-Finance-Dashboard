@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.withdrawals.service.servicelmpl;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.dto.Withdr
 import com.techsensei.payment_intergration_system.backend.withdrawals.dto.WithdrawalResponse;
 import com.techsensei.payment_intergration_system.backend.withdrawals.entity.WithdrawalTransaction;
 import com.techsensei.payment_intergration_system.backend.withdrawals.enums.WithdrawalStatus;
+import com.techsensei.payment_intergration_system.backend.withdrawals.events.WithdrawalRequestedEvent;
 import com.techsensei.payment_intergration_system.backend.withdrawals.repository.WithdrawalTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.withdrawals.service.WithdrawalService;
 
@@ -23,40 +25,49 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class WithdrawalServiceImpl implements WithdrawalService {
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    private final WalletRepository walletRepository;
+        private final WalletRepository walletRepository;
 
-    private final WithdrawalTransactionRepository withdrawalTransactionRepository;
+        private final WithdrawalTransactionRepository withdrawalTransactionRepository;
 
-    @Override
-    public WithdrawalResponse requestWithdrawal(Long userId, WithdrawalRequest request) {
+        private final ApplicationEventPublisher applicationEventPublisher;
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        @Override
+        public WithdrawalResponse requestWithdrawal(Long userId, WithdrawalRequest request) {
 
-        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+                User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (wallet.getBalance().compareTo(request.getAmount()) < 0) {throw new RuntimeException("Insufficient balance");}
+                Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
+                                .orElseThrow(() -> new RuntimeException("Wallet not found"));
 
+                if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
+                        throw new RuntimeException("Insufficient balance");
+                }
 
-        WithdrawalTransaction transaction =  WithdrawalTransaction.builder()
-                .user(user)
-                .amount(request.getAmount())
-                .provider(request.getProvider())
-                .status( WithdrawalStatus.PENDING)
-                .build();
+                WithdrawalTransaction transaction = WithdrawalTransaction.builder()
+                                .user(user)
+                                .amount(request.getAmount())
+                                .provider(request.getProvider())
+                                .status(WithdrawalStatus.PENDING)
+                                .build();
 
-        withdrawalTransactionRepository.save(transaction);
+                withdrawalTransactionRepository.save(transaction);
 
-        log.info("Withdrawal request created reference={} amount={}",transaction.getReference(),transaction.getAmount());
+                applicationEventPublisher.publishEvent( new WithdrawalRequestedEvent(
+                                                user.getId(),
+                                                transaction.getReference(),
+                                                transaction.getAmount()));
 
-        return WithdrawalResponse.builder()
-                .reference(transaction.getReference())
-                .message("Withdrawal request submitted successfully")
-                .status(transaction.getStatus())
-                .build();
+                log.info("Withdrawal request created reference={} amount={}", transaction.getReference(),
+                                transaction.getAmount());
 
-    }
+                return WithdrawalResponse.builder()
+                                .reference(transaction.getReference())
+                                .message("Withdrawal request submitted successfully")
+                                .status(transaction.getStatus())
+                                .build();
+
+        }
 
 }
