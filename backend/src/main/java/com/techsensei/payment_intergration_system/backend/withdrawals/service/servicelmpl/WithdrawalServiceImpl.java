@@ -13,6 +13,8 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.dto.Withdr
 import com.techsensei.payment_intergration_system.backend.withdrawals.entity.WithdrawalTransaction;
 import com.techsensei.payment_intergration_system.backend.withdrawals.enums.WithdrawalStatus;
 import com.techsensei.payment_intergration_system.backend.withdrawals.events.WithdrawalRequestedEvent;
+import com.techsensei.payment_intergration_system.backend.withdrawals.providers.WithdrawalProvider;
+import com.techsensei.payment_intergration_system.backend.withdrawals.providers.WithdrawalProviderFactory;
 import com.techsensei.payment_intergration_system.backend.withdrawals.repository.WithdrawalTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.withdrawals.service.WithdrawalService;
 
@@ -32,6 +34,8 @@ public class WithdrawalServiceImpl implements WithdrawalService {
         private final WithdrawalTransactionRepository withdrawalTransactionRepository;
 
         private final ApplicationEventPublisher applicationEventPublisher;
+
+        private final WithdrawalProviderFactory withdrawalProviderFactory;
 
         @Override
         public WithdrawalResponse requestWithdrawal(Long userId, WithdrawalRequest request) {

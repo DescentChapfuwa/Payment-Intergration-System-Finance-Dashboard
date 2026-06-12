@@ -19,14 +19,43 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,precision = 19,scale = 2)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
 
     @Column(nullable = false)
     private String currency;
 
     @OneToOne
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+
+    @Column(nullable = false)
+    @Builder.Default
+    private BigDecimal reservedBalance = BigDecimal.ZERO;
+
+    public void reserveFunds(BigDecimal amount) {
+
+        if (balance.compareTo(amount) < 0) {
+            throw new RuntimeException(
+                    "Insufficient balance");
+        }
+
+        balance = balance.subtract(amount);
+
+        reservedBalance = reservedBalance.add(amount);
+    }
+
+    public void completeWithdrawal(BigDecimal amount) {
+
+        reservedBalance = reservedBalance.subtract(amount);
+    }
+
+    public void releaseFunds(BigDecimal amount) {
+
+        reservedBalance = reservedBalance.subtract(amount);
+
+        balance = balance.add(amount);
+    }
 
 }
