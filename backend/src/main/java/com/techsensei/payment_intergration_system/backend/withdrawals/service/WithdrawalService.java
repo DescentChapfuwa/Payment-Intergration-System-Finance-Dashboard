@@ -5,5 +5,5 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.dto.Withdr
 
 public interface WithdrawalService {
 
-    WithdrawalResponse requestWithdrawal(Long userId,WithdrawalRequest request);
+    WithdrawalResponse requestWithdrawal(String key,Long userId,WithdrawalRequest request);
 }
