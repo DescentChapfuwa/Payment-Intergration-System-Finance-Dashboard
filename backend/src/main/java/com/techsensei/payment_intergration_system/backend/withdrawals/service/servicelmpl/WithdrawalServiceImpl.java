@@ -81,7 +81,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                 withdrawalTransactionRepository.save(transaction);
 
                 idempotencyKeyRepository.save(IdempotencyKey.builder()
-                                .key(key)
+                                .idempotencyKey(key)
                                 .endpoint("/withdrawals")
                                 .responseReference(transaction.getReference().toString())
                                 .build());
