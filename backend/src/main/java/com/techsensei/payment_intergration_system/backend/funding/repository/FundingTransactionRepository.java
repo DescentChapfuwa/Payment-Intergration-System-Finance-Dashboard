@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.funding.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,5 +13,7 @@ public interface FundingTransactionRepository extends JpaRepository<FundingTrans
     Optional<FundingTransaction> findByReference(UUID reference);
 
     Optional<FundingTransaction> findByProviderReference(String providerReference);
+
+     List<FundingTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
 
 }
