@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingRequest;
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingResponse;
+import com.techsensei.payment_intergration_system.backend.funding.dto.FundingTransactionDetails;
 import com.techsensei.payment_intergration_system.backend.funding.entity.FundingTransaction;
 import com.techsensei.payment_intergration_system.backend.funding.repository.FundingTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.funding.service.FundingService;
@@ -40,9 +41,9 @@ public class FundingTransactionController {
     }
 
     @GetMapping("/history/{userId}")
-    public ResponseEntity<List<FundingTransaction>> getFundingHistory(@PathVariable Long userId) {
+    public ResponseEntity<List<FundingTransactionDetails>> getFundingHistory(@PathVariable Long userId) {
 
-        return ResponseEntity.ok(fundingRepository.findByUserIdOrderByCreatedAtDesc(userId));
+        return ResponseEntity.ok(fundingService.getAllTransactions(userId));
     }
 
 }

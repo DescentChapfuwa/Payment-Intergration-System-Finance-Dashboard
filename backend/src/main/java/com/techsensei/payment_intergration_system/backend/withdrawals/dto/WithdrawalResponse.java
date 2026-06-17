@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.withdrawals.dto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.techsensei.payment_intergration_system.backend.withdrawals.enums.WithdrawalStatus;
@@ -22,4 +23,6 @@ public class WithdrawalResponse {
     private WithdrawalStatus status;
 
     private String message;
+
+    private BigDecimal amount;
 }

@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.withdrawals.service.servicelmpl;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.techsensei.payment_intergration_system.backend.funding.mapper.FundingTransactionMapper;
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
 import com.techsensei.payment_intergration_system.backend.payments.repository.WalletRepository;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
@@ -17,6 +19,7 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.entity.Ide
 import com.techsensei.payment_intergration_system.backend.withdrawals.entity.WithdrawalTransaction;
 import com.techsensei.payment_intergration_system.backend.withdrawals.enums.WithdrawalStatus;
 import com.techsensei.payment_intergration_system.backend.withdrawals.events.WithdrawalRequestedEvent;
+import com.techsensei.payment_intergration_system.backend.withdrawals.mappers.WithdrawalTransactionMapper;
 import com.techsensei.payment_intergration_system.backend.withdrawals.providers.WithdrawalProvider;
 import com.techsensei.payment_intergration_system.backend.withdrawals.providers.WithdrawalProviderFactory;
 import com.techsensei.payment_intergration_system.backend.withdrawals.repository.IdempotencyKeyRepository;
@@ -100,6 +103,16 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                                 .status(transaction.getStatus())
                                 .build();
 
+        }
+
+        @Override
+        public List<WithdrawalResponse> requestAllWithdrawals(Long userId) {
+               log.info("Retrieving All Withdrawals from the database");
+
+                return withdrawalTransactionRepository.findByUserIdOrderByStatus(userId)
+                                .stream()
+                                .map(WithdrawalTransactionMapper::mapToResponse)
+                                .toList();
         }
 
 }

@@ -14,6 +14,6 @@ public interface FundingTransactionRepository extends JpaRepository<FundingTrans
 
     Optional<FundingTransaction> findByProviderReference(String providerReference);
 
-     List<FundingTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
+     List<FundingTransaction> findByUserIdOrderByStatus(Long userId);
 
 }

@@ -1,5 +1,6 @@
 package com.techsensei.payment_intergration_system.backend.withdrawals.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,6 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.entity.Wit
 public interface WithdrawalTransactionRepository extends JpaRepository<WithdrawalTransaction,Long>{
 
     Optional<WithdrawalTransaction> findByReference(UUID reference);
+
+    List<WithdrawalTransaction> findByUserIdOrderByStatus(Long userId);
 }
