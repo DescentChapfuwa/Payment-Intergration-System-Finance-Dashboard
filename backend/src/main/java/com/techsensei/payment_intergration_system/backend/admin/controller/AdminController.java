@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techsensei.payment_intergration_system.backend.admin.dto.DashboardResponse;
 import com.techsensei.payment_intergration_system.backend.admin.service.AdminService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Admin")
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    @Operation(summary = "Get dashboard statistics")
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardResponse> dashboard() {
         return ResponseEntity.ok(adminService.dashboard());

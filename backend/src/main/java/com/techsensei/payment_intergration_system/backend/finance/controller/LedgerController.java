@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techsensei.payment_intergration_system.backend.finance.entity.LedgerEntry;
 import com.techsensei.payment_intergration_system.backend.finance.repository.LedgerEntryRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Finance")
 @RestController
 @RequestMapping("/api/finance")
 @RequiredArgsConstructor
@@ -18,8 +21,9 @@ public class LedgerController {
 
     private final LedgerEntryRepository repository;
 
+    @Operation(summary = "Get ledger entries")
     @GetMapping("/ledger")
-    public List<LedgerEntry> getLedger(){
+    public List<LedgerEntry> getLedger() {
 
         return repository.findAll();
 

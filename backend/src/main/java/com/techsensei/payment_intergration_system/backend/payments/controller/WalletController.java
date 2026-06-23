@@ -8,6 +8,9 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.WalletTop
 import com.techsensei.payment_intergration_system.backend.payments.service.WalletService;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Wallet")
 @RestController
 @RequestMapping("/api/wallets")
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class WalletController {
         return ResponseEntity.ok(walletService.topUpWallet(userId, request));
     }
 
+    @Operation(summary = "Get wallet balance")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/balance")
     public ResponseEntity<WalletResponse> getBalance(Authentication authentication) {

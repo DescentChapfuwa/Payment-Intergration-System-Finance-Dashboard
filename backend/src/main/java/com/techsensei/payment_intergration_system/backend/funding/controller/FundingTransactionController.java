@@ -19,9 +19,14 @@ import com.techsensei.payment_intergration_system.backend.funding.entity.Funding
 import com.techsensei.payment_intergration_system.backend.funding.repository.FundingTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.funding.service.FundingService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;@Tag(
+        name = "Funding"
+)
 
+@Tag(name = "Funding")
 @RestController
 @RequestMapping("/api/funding")
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class FundingTransactionController {
     private final FundingService fundingService;
     private final FundingTransactionRepository fundingRepository;
 
+
+    @Operation(summary = "Initiate wallet funding")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/initiate/{userld}")
     public ResponseEntity<FundingResponse> sendMoney(@Valid @RequestBody FundingRequest request,
@@ -40,6 +47,7 @@ public class FundingTransactionController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Operation(summary = "Get funding history")
     @GetMapping("/history/{userId}")
     public ResponseEntity<List<FundingTransactionDetails>> getFundingHistory(@PathVariable Long userId) {
 

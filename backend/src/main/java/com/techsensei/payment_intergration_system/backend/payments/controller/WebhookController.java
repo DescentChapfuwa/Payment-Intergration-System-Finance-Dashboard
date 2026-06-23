@@ -15,9 +15,12 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.PaynowWeb
 import com.techsensei.payment_intergration_system.backend.payments.dto.WebhookPayload;
 import com.techsensei.payment_intergration_system.backend.payments.service.WebhookService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Tag(name = "Webhooks")
 @RestController
 @RequestMapping("/webhooks")
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class WebhookController {
 
     private final WebhookService webhookService;
 
+    @Operation(summary = "Paynow callback")
     @PostMapping(
         value = "/paynow",
         consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
