@@ -74,6 +74,10 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                         throw new RuntimeException("Insufficient balance");
                 }
 
+                wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
+
+                walletRepository.save(wallet);
+
                 WithdrawalTransaction transaction = WithdrawalTransaction.builder()
                                 .user(user)
                                 .amount(request.getAmount())
@@ -81,7 +85,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
                                 .status(WithdrawalStatus.PENDING)
                                 .build();
 
-                withdrawalTransactionRepository.save(transaction);
+                transaction = withdrawalTransactionRepository.save(transaction);
 
                 idempotencyKeyRepository.save(IdempotencyKey.builder()
                                 .idempotencyKey(key)
@@ -107,7 +111,7 @@ public class WithdrawalServiceImpl implements WithdrawalService {
 
         @Override
         public List<WithdrawalResponse> requestAllWithdrawals(Long userId) {
-               log.info("Retrieving All Withdrawals from the database");
+                log.info("Retrieving All Withdrawals from the database");
 
                 return withdrawalTransactionRepository.findByUserIdOrderByStatus(userId)
                                 .stream()

@@ -36,7 +36,8 @@ public class WithdrawalTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID reference;
+    @Builder.Default
+    private UUID reference = UUID.randomUUID();
 
     private BigDecimal amount;
 
@@ -56,11 +57,11 @@ public class WithdrawalTransaction {
     private User user;
 
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
 
         createdAt = LocalDateTime.now();
 
-        if(reference == null){
+        if (reference == null) {
             reference = UUID.randomUUID();
         }
     }
