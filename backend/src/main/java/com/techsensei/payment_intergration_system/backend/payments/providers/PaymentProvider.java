@@ -8,6 +8,10 @@ public interface PaymentProvider {
 
     ProviderPaymentResponse processPayment(String reference, String customerEmail, BigDecimal amount);
 
+    ProviderPaymentResponse paymentFallback(Exception ex,String reference, String customerEmail, BigDecimal amount);
+     
+    ProviderPaymentResponse recover(Exception ex,String reference, String customerEmail, BigDecimal amount);
+
     String getProviderName();
 
 }

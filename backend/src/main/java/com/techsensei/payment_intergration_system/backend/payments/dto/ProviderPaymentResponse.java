@@ -1,6 +1,5 @@
 package com.techsensei.payment_intergration_system.backend.payments.dto;
 
-import com.techsensei.payment_intergration_system.backend.payments.entity.Payment;
 import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 
 import lombok.AllArgsConstructor;

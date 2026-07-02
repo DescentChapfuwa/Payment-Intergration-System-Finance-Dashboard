@@ -2,6 +2,9 @@ package com.techsensei.payment_intergration_system.backend.payments.providers.pa
 
 import java.math.BigDecimal;
 
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.techsensei.payment_intergration_system.backend.config.PaynowProperties;
@@ -9,6 +12,7 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.ProviderP
 import com.techsensei.payment_intergration_system.backend.payments.entity.PaymentStatus;
 import com.techsensei.payment_intergration_system.backend.payments.providers.PaymentProvider;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import zw.co.paynow.core.Paynow;
@@ -23,16 +27,16 @@ public class PaynowProvider implements PaymentProvider {
 
     private final PaynowProperties paynowProperties;
 
-
     @Override
     public String getProviderName() {
         return "PAYNOW";
     }
 
+    @CircuitBreaker(name = "paynow", fallbackMethod = "paymentFallback")
     @Override
+    @Retryable(retryFor = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
     public ProviderPaymentResponse processPayment(String reference, String customerEmail, BigDecimal amount) {
         try {
-
 
             zw.co.paynow.core.Payment payment = paynow.createPayment(reference, paynowProperties.getMerchantEmail());
 
@@ -66,6 +70,28 @@ public class PaynowProvider implements PaymentProvider {
         }
     }
 
+    @Override
+    @Recover
+    public ProviderPaymentResponse recover(Exception ex, String reference, String customerEmail, BigDecimal amount) {
 
-    
+        log.error("Paynow unavailable after retries", ex);
+
+        return ProviderPaymentResponse.builder()
+                .status(PaymentStatus.FAILED)
+                .message("Paynow service currently unavailable. Please try again later.")
+                .build();
+    }
+
+    @Override
+    public ProviderPaymentResponse paymentFallback(Exception ex,String reference, String customerEmail, BigDecimal amount) {
+        log.error(
+                "Paynow Circuit Breaker triggered",
+                ex);
+
+        return ProviderPaymentResponse.builder()
+                .status(PaymentStatus.FAILED)
+                .message("Payment service temporarily unavailable. Please try again later.")
+                .build();
+    }
+
 }
