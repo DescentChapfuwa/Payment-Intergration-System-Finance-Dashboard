@@ -20,4 +20,8 @@ public class ErrorResponse {
     private LocalDateTime timestamp;
 
     private Map<String, String> errors;
+
+    private String error;
+
+    private String path;
 }
