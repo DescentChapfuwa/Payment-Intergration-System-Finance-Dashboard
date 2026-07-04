@@ -1,12 +1,12 @@
-package com.techsensei.payment_intergration_system.backend.withdrawals.listeners;
+package com.techsensei.payment_intergration_system.backend.notification.listeners;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import com.techsensei.payment_intergration_system.backend.funding.events.FundingCompletedEvent;
 import com.techsensei.payment_intergration_system.backend.notification.email.service.EmailService;
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
-import com.techsensei.payment_intergration_system.backend.withdrawals.events.WithdrawalRequestedEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,21 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class WithdrawalNotificationListener {
+public class EmailFundingNotificationListener {
 
     private final UserRepository userRepository;
     private final EmailService emailService;
 
     @EventListener
-    public void handleWithdrawalRequested(WithdrawalRequestedEvent event) {
-
-        log.info(
-                "Sending withdrawal notification reference={}",
-                event.getReference());
-    }
-
-    @EventListener
-    public void handle(WithdrawalRequestedEvent event) {
+    public void handle(FundingCompletedEvent event) {
 
         User user = userRepository.findById(event.getUserId())
                 .orElseThrow();
@@ -36,11 +28,11 @@ public class WithdrawalNotificationListener {
         try {
             emailService.sendEmail(
                     user.getEmail(),
-                    "Wallet Withdrawal Successful",
+                    "Wallet Funding Successful",
                     """
                             Hello %s,
 
-                            Your wallet has been withdrawn successfully.
+                            Your wallet has been funded successfully.
 
                             Reference: %s
 
@@ -49,11 +41,12 @@ public class WithdrawalNotificationListener {
                             Thank you.
                             """.formatted(
                             user.getFullName(),
-                            event.getReference(),
+                            event.getFundingReference(),
                             event.getAmount()));
         } catch (Exception exception) {
-            log.error("Failed to send email", exception);
+            log.error("Sending email failed", exception);
         }
 
     }
+
 }
