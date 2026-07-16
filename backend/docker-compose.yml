@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: payment_mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: payment_inter_sys
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: payment_backend
+
+    depends_on:
+      - mysql
+
+    ports:
+      - "1020:1020"
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/payment_inter_sys
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+volumes:
+  mysql_data:

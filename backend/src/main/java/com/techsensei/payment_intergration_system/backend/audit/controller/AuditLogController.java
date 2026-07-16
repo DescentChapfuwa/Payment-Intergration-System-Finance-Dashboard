@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.techsensei.payment_intergration_system.backend.audit.dto.AuditLogResponse;
 import com.techsensei.payment_intergration_system.backend.audit.service.AuditService;
-import com.techsensei.payment_intergration_system.backend.users.dto.UserResponse;
+
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
