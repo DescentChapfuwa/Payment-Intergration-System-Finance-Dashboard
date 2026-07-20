@@ -13,36 +13,30 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI openAPI() {
+        @Bean
+        public OpenAPI customOpenAPI() {
 
-        return new OpenAPI().info(new Info()
-                .title("Payment Integration System API")
-                .description("Digital Wallet and Payment API")
-                .version("1.0")
-                .contact(new Contact()
-                        .name("TechSensei")
-                        .email("support@techsensei.com")));
+                final String securitySchemeName = "bearerAuth";
 
-    }
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Payment Integration System API")
+                                                .description("Digital Wallet and Payment API")
+                                                .version("1.0")
+                                                .contact(new Contact()
+                                                                .name("TechSensei")
+                                                                .email("support@techsensei.com")))
 
-    @Bean
-    public OpenAPI customOpenAPI() {
+                                .addSecurityItem(new SecurityRequirement()
+                                                .addList(securitySchemeName))
 
-        final String securitySchemeName = "bearerAuth";
-
-        return new OpenAPI().addSecurityItem(new SecurityRequirement()
-                .addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")))
-
-                .info(new Info()
-                        .title("Payment Integration System API")
-                        .version("1.0"));
-    }
-
+                                .components(new Components()
+                                                .addSecuritySchemes(
+                                                                securitySchemeName,
+                                                                new SecurityScheme()
+                                                                                .name(securitySchemeName)
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")));
+        }
 }

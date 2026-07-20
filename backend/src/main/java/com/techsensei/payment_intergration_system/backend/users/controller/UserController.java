@@ -4,6 +4,8 @@ import com.techsensei.payment_intergration_system.backend.users.dto.CreateUserRe
 import com.techsensei.payment_intergration_system.backend.users.dto.UpdateUserRequest;
 import com.techsensei.payment_intergration_system.backend.users.dto.UserResponse;
 import com.techsensei.payment_intergration_system.backend.users.service.UserService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final UserService userService;
