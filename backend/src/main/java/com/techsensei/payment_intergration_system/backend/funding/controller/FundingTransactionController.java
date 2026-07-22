@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingRequest;
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingResponse;
 import com.techsensei.payment_intergration_system.backend.funding.dto.FundingTransactionDetails;
-import com.techsensei.payment_intergration_system.backend.funding.entity.FundingTransaction;
 import com.techsensei.payment_intergration_system.backend.funding.repository.FundingTransactionRepository;
 import com.techsensei.payment_intergration_system.backend.funding.service.FundingService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;@Tag(
@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;@Tag(
 @RestController
 @RequestMapping("/api/funding")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class FundingTransactionController {
 
     private final FundingService fundingService;

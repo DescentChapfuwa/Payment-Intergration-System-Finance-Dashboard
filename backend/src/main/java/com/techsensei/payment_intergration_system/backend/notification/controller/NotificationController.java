@@ -18,11 +18,13 @@ import com.techsensei.payment_intergration_system.backend.payments.dto.PagedResp
 import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
 
     private final NotificationService notificationService;

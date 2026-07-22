@@ -12,6 +12,7 @@ import com.techsensei.payment_intergration_system.backend.transactionshistory.dt
 import com.techsensei.payment_intergration_system.backend.transactionshistory.service.servicelmpl.TransactionHistoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class TransactionHistoryController {
 
     private final TransactionHistoryService transactionHistoryService;

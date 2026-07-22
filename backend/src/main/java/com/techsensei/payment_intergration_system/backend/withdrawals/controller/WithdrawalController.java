@@ -16,6 +16,7 @@ import com.techsensei.payment_intergration_system.backend.withdrawals.dto.Withdr
 import com.techsensei.payment_intergration_system.backend.withdrawals.service.WithdrawalService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/withdrawals")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class WithdrawalController {
 
     private final WithdrawalService withdrawalService;

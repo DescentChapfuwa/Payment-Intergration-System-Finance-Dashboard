@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techsensei.payment_intergration_system.backend.audit.dto.AuditLogResponse;
 import com.techsensei.payment_intergration_system.backend.audit.service.AuditService;
 
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/audit")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class AuditLogController {
 
     private final AuditService service;

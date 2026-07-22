@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import com.techsensei.payment_intergration_system.backend.payments.entity.Wallet;
 import com.techsensei.payment_intergration_system.backend.payments.repository.WalletRepository;
@@ -17,6 +18,7 @@ import com.techsensei.payment_intergration_system.backend.users.entity.User;
 import com.techsensei.payment_intergration_system.backend.users.repository.UserRepository;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class WalletRepositoryTest {
 
     @Autowired
